@@ -22,6 +22,11 @@ test("HTTP read routes, errors, and method boundaries", async () => {
       calls.push(`messages:${id}`);
       return [];
     },
+    async getAgentActions(id) {
+      calls.push(`actions:${id}`);
+      return [{ id: "recorded-question", leadId: id, action: "record_qualification_question",
+        reason: "A previously recorded question", status: "completed", timestamp: new Date("2026-01-01T10:00:00Z") }];
+    },
   });
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
@@ -35,6 +40,8 @@ test("HTTP read routes, errors, and method boundaries", async () => {
     assert.deepEqual(await (await fetch(`${base}/leads/sarah-johnson`)).json(), sarahJohnson);
     assert.deepEqual(await (await fetch(`${base}/leads/sarah-johnson/messages`)).json(), []);
     assert.ok(calls.includes("messages:sarah-johnson"));
+    const actions = await (await fetch(`${base}/leads/sarah-johnson/actions`)).json() as { id: string }[];
+    assert.equal(actions[0]?.id, "recorded-question");
     // Exercise the real Python client against HTTP independently of Atlas access.
     // The separate test_backend_bridge.py checks the live MongoDB path.
     const python = await promisify(execFile)("python3", ["-B", "-c", [
@@ -45,6 +52,9 @@ test("HTTP read routes, errors, and method boundaries", async () => {
       "assert client.get_business('nova-tutors')['name'] == 'Nova Tutors'",
       "assert client.get_lead('sarah-johnson')['name'] == 'Sarah Johnson'",
       "assert client.get_conversation_history('sarah-johnson') == []",
+      "assert client.get_agent_actions('sarah-johnson')[0]['id'] == 'recorded-question'",
+      "from lead_inspection import load_inspection",
+      "assert load_inspection(client, 'sarah-johnson')['actions'][0]['id'] == 'recorded-question'",
       "try:",
       "    client.get_lead('missing')",
       "except BackendError as error:",
@@ -54,7 +64,7 @@ test("HTTP read routes, errors, and method boundaries", async () => {
       "print('Python HTTP client passed (fixture-backed route test).')",
     ].join("\n"), base], { cwd: process.cwd(), timeout: 10000 });
     assert.match(python.stdout, /Python HTTP client passed/);
-    for (const path of ["/businesses/missing", "/leads/missing", "/leads/missing/messages", "/unknown"]) {
+    for (const path of ["/businesses/missing", "/leads/missing", "/leads/missing/messages", "/leads/missing/actions", "/unknown"]) {
       assert.equal((await fetch(base + path)).status, 404);
     }
     assert.equal((await fetch(`${base}/leads/%ZZ`)).status, 400);
@@ -68,6 +78,7 @@ test("HTTP read routes, errors, and method boundaries", async () => {
       assert.equal(response.headers.get("allow"), "GET");
     }
     assert.equal(calls.length, before);
+    assert.equal((await fetch(`${base}/leads/sarah-johnson/actions`, { method: "POST" })).status, 405);
   } finally {
     await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   }

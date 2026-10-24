@@ -5,7 +5,8 @@ import { evaluateProposal, parseProposal, ProposalInputError } from "./evaluateP
 import { executeProposal } from "./executeProposal.js";
 import type { ExecutionTools } from "./executeProposal.js";
 
-type ReadTools = Pick<typeof agentTools, "getBusiness" | "getLead" | "getConversationHistory">;
+type ReadTools = Pick<typeof agentTools, "getBusiness" | "getLead" | "getConversationHistory"> &
+  Partial<Pick<typeof agentTools, "getAgentActions">>;
 
 function json(response: ServerResponse, status: number, body: unknown) {
   response.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -33,7 +34,7 @@ async function readProposal(request: IncomingMessage) {
   return parseProposal(value);
 }
 
-// Reads and safety evaluation only; no write tools are available to this server.
+// GET routes use only read tools. Execution is isolated behind its POST gate.
 export function createBackendServer(tools: ReadTools, executionTools?: Pick<ExecutionTools, "logAction">) {
   return createServer(async (request, response) => {
     let parts: string[];
@@ -95,6 +96,13 @@ export function createBackendServer(tools: ReadTools, executionTools?: Pick<Exec
           return;
         }
         json(response, 200, await tools.getConversationHistory(id));
+      } else if (id && parts.length === 3 && parts[0] === "leads" && parts[2] === "actions") {
+        if (!await tools.getLead(id)) {
+          json(response, 404, { error: "Lead not found" });
+          return;
+        }
+        if (!tools.getAgentActions) throw new ProposalInputError("Action reads are not configured", 503);
+        json(response, 200, await tools.getAgentActions(id));
       } else {
         json(response, 404, { error: "Endpoint not found" });
       }

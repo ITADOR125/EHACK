@@ -1,6 +1,9 @@
 import json
+import os
 import re
 import streamlit as st
+from backend_client import BackendClient, BackendError
+from lead_inspection import render_inspection
 
 try:
     import agent
@@ -278,6 +281,10 @@ def screen_start():
         st.session_state.profile = {k: v for k, v in DEMO.items() if v}
         st.session_state.stage = "review"
         log_activity("Nova Tutors demo profile loaded.", "success")
+        st.rerun()
+    if st.button("Open Sarah (backend, read-only)", key="inspect_sarah_start"):
+        st.session_state.inspection_return_stage = "start"
+        st.session_state.stage = "backend_lead"
         st.rerun()
 
 
@@ -918,37 +925,62 @@ def screen_active():
     st.markdown('<div class="nova-kicker">Workspace overview</div>', unsafe_allow_html=True)
     st.title(f"Nova is ready for {st.session_state.profile.get('name', 'your business')} ✨")
     st.caption("Review leads, prepare thoughtful outreach, and keep every customer conversation grounded in your business profile.")
-    leads = st.session_state.setdefault("leads", [])
+    # Sarah's canonical backend record replaces her demo card. Other demo flows
+    # remain local; backend inspection never uses their mutable dictionaries.
+    st.session_state.leads = [item for item in st.session_state.setdefault("leads", [])
+                             if item.get("id") not in ("sarah", "sarah-johnson")]
+    leads = st.session_state.leads
+    backend_sarah = None
+    backend_error = None
+    try:
+        backend_sarah = backend_client().get_lead("sarah-johnson")
+    except BackendError as error:
+        backend_error = str(error)
     selected = st.session_state.get("lead")
-    if selected and not any(item.get("id") == selected.get("id") for item in leads):
+    if selected and selected.get("id") not in ("sarah", "sarah-johnson") and not any(item.get("id") == selected.get("id") for item in leads):
         leads.append(selected)
     c1, c2, c3 = st.columns(3)
-    c1.metric("Leads", len(leads))
-    c2.metric("Awaiting approval", sum(1 for item in leads if item.get("status") in ("AWAITING APPROVAL", "CONSULTATION NEEDED")))
-    c3.metric("Qualified / consultation", sum(1 for item in leads if item.get("status") in ("QUALIFIED", "CONSULTATION NEEDED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED")))
+    c1.metric("Leads", len(leads) + (1 if backend_sarah else 0))
+    pipeline = leads + ([backend_sarah] if backend_sarah else [])
+    display_status = lambda item: item.get("status", "").upper().replace("_", " ")
+    c2.metric("Awaiting approval", sum(1 for item in pipeline if display_status(item) in ("AWAITING APPROVAL", "CONSULTATION NEEDED")))
+    c3.metric("Qualified / consultation", sum(1 for item in pipeline if display_status(item) in ("QUALIFIED", "CONSULTATION NEEDED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED")))
 
     h, add = st.columns([4, 1])
     h.subheader("Lead pipeline")
+    with st.container(border=True):
+        if backend_sarah:
+            a, b, c, d = st.columns([2.5, 1.5, 1.7, .8])
+            a.write(backend_sarah["name"] + " · " + backend_sarah["student"]["name"])
+            b.write(backend_sarah["subject"])
+            c.write(backend_sarah["status"])
+            if d.button("Open", type="primary", key="open_backend_sarah"):
+                st.session_state.inspection_return_stage = "active"
+                st.session_state.stage = "backend_lead"
+                st.rerun()
+            st.caption("MongoDB · Read-only")
+        else:
+            st.error("Sarah's backend record is unavailable: " + str(backend_error))
     if not leads:
         if add.button("＋ Load demo leads", type="primary", use_container_width=True):
-            st.session_state.leads = [new_lead(), rachel_lead(), james_lead()]
+            st.session_state.leads = [rachel_lead(), james_lead()]
             st.session_state.lead = None
             for item in st.session_state.leads:
                 log_lead_activity(item, f"{item['parent']} added to the demo pipeline.", "success")
-            log_activity("Three sample leads loaded. Rachel and James start as unassessed enquiries and need a conversation before Nova decides fit.", "success")
+            log_activity("Rachel and James demo leads loaded. Sarah is read from the backend.", "success")
             st.rerun()
     else:
         if add.button("↻ Reset leads", use_container_width=True):
-            st.session_state.leads = [new_lead(), rachel_lead(), james_lead()]
+            st.session_state.leads = [rachel_lead(), james_lead()]
             st.session_state.lead = None
             st.session_state.outreach_draft = ""
             st.session_state.editing_outreach = False
-            log_activity("All three sample leads were reset to their starting states.", "success")
+            log_activity("Rachel and James demo leads reset. Sarah's backend data is unchanged.", "success")
             st.rerun()
     if not leads:
         with st.container(border=True):
-            st.markdown("### Three demo outcomes")
-            st.write("Load Sarah, Rachel, and James. Rachel and James begin as enquiries; Nova must talk with them before it decides fit or recommends a consultation.")
+            st.markdown("### Other demo leads")
+            st.write("Load Rachel and James to try the existing local demo. Sarah's backend record is shown above.")
     else:
         for item in leads:
             with st.container(border=True):
@@ -977,7 +1009,21 @@ def screen_active():
             render_activity(st.session_state.get("activity", []), "Nova's onboarding and lead actions will appear here.")
 
 
+def backend_client():
+    return BackendClient(os.getenv("NOVA_BACKEND_URL", "http://127.0.0.1:8000"))
+
+
+def screen_backend_lead():
+    if st.button("← Back", key="backend_lead_back"):
+        st.session_state.stage = st.session_state.get("inspection_return_stage", "start")
+        st.rerun()
+    render_inspection(st, backend_client(), "sarah-johnson")
+
+
 def screen_lead():
+    if st.session_state.lead.get("id") in ("sarah", "sarah-johnson"):
+        screen_backend_lead()
+        return
     lead = st.session_state.lead
     profile = st.session_state.profile
     lead.setdefault("other_facts", {})
@@ -1209,4 +1255,5 @@ ai_status()
     "review": screen_review,
     "active": screen_active,
     "lead": screen_lead,
+    "backend_lead": screen_backend_lead,
 }[st.session_state.stage]()

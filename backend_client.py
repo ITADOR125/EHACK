@@ -46,6 +46,9 @@ class BackendClient:
     def get_conversation_history(self, lead_id):
         return self._get("/leads/" + quote(lead_id, safe="") + "/messages")
 
+    def get_agent_actions(self, lead_id):
+        return self._get("/leads/" + quote(lead_id, safe="") + "/actions")
+
     def evaluate_proposal(self, proposal):
         """Return backend safety preflight; never execute the proposed action."""
         return self._request("/proposals/evaluate", proposal)

@@ -45,6 +45,13 @@ export async function getConversationHistory(leadId: string): Promise<Message[]>
     .toArray();
 }
 
+export async function getAgentActions(leadId: string): Promise<AgentAction[]> {
+  return (await database()).collection<AgentAction>("agent_actions")
+    .find({ leadId }, { projection: { _id: 0 } })
+    .sort({ timestamp: 1, id: 1 })
+    .toArray();
+}
+
 export async function logAction(action: AgentAction): Promise<AgentAction>;
 export async function logAction(action: AgentAction, options: { idempotencyKey: string }): Promise<{ action: AgentAction; created: boolean }>;
 export async function logAction(action: AgentAction, options?: { idempotencyKey: string }): Promise<AgentAction | { action: AgentAction; created: boolean }> {
