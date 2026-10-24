@@ -57,9 +57,8 @@ p, label { line-height:1.65; }
 [data-testid="stTextInput"] input::placeholder { color:#697a71 !important; opacity:1; }
 [data-testid="stProgressBar"] > div > div { background:var(--green); }
 [data-testid="stExpander"] { border-color:var(--line); border-radius:14px; background:#fff; }
-
 .nova-kicker { color:var(--green); text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; font-weight:800; margin-bottom:.4rem; }
-.nova-hero { border:1px solid #dce9df; border-radius:24px; padding:2.6rem 2.8rem 2.6rem 2.3rem; background:radial-gradient(circle at 90% 5%,#dbf1e6 0,transparent 30%),linear-gradient(135deg,#fff 0%,#f2f8f3 100%); box-shadow:0 12px 38px rgba(25,50,38,.055); margin:.5rem 0 1.4rem; }
+.nova-hero { border:1px solid #dce9df; border-radius:24px; padding:2.6rem 2.8rem 2.6rem 1.3rem; background:radial-gradient(circle at 90% 5%,#dbf1e6 0,transparent 30%),linear-gradient(135deg,#fff 0%,#f2f8f3 100%); box-shadow:0 12px 38px rgba(25,50,38,.055); margin:.5rem 0 1.4rem; }
 .nova-hero h1 { font-size:3rem !important; margin:.1rem 0 .6rem; }
 .nova-hero p { color:#586a60; font-size:1.05rem; max-width:680px; }
 .nova-pill { display:inline-block; background:#e5f2e9; color:#17684f; border-radius:99px; padding:.38rem .75rem; font-size:.78rem; font-weight:700; }
@@ -150,6 +149,7 @@ def init_state():
         "profile": {},         # key -> text
         "unsure": set(),       # keys the owner didn't know
         "lead": None,          # the current lead (Sarah Johnson)
+        "leads": [],           # demo pipeline: Sarah, Rachel, and James
         "activity": [],
         "outreach_draft": "",
         "editing_outreach": False,
@@ -359,7 +359,7 @@ def save_profile():
 STATUS_ICON = {
     "NEW": "🆕", "AWAITING APPROVAL": "🟠", "CONTACTED": "📤", "RESPONDED": "💬", "QUALIFIED": "✅",
     "CONSULTATION OFFERED": "📅", "CONSULTATION REQUESTED": "🎉", "NOT A FIT": "❌",
-    "CLOSED": "🔒", "NEEDS HUMAN": "🙋",
+    "CONSULTATION NEEDED": "🟡", "CLOSED": "🔒", "NEEDS HUMAN": "🙋",
 }
 # When the lead reaches one of these, Nova sends one final message and the conversation ends.
 TERMINAL = ("CONSULTATION REQUESTED", "CLOSED", "NOT A FIT", "NEEDS HUMAN")
@@ -373,6 +373,7 @@ SUPPORTED_WORDS = ("maths", "math", "biology", "chemistry", "physics", "science"
 
 def new_lead(parent="Sarah Johnson", student="Daniel", year=11, subject="GCSE Maths"):
     return {
+        "id": "sarah",
         "parent": parent, "student": student, "year": year, "subject": subject,
         "problem": "Needs additional Maths support.",
         "current_grade": None, "target_grade": None, "motivation": None, "pricing_interest": False,
@@ -381,7 +382,76 @@ def new_lead(parent="Sarah Johnson", student="Daniel", year=11, subject="GCSE Ma
     }
 
 
+def rachel_lead():
+    return {
+        "id": "rachel", "parent": "Rachel Thompson", "student": "Oliver Thompson", "year": 10,
+        "age": 15, "relationship": "Parent / Guardian", "location": "Islington, London",
+        "subject": "GCSE Mathematics", "problem": "Understands most topics in class but struggles with exam-style questions and applying knowledge under timed conditions.",
+        "current_grade": "5", "target_grade": "7 or above",
+        "motivation": "Wants extra support before Oliver enters Year 11; hopes to start within 2–3 weeks.",
+        "pricing_interest": True, "other_facts": {
+            "Exam board": "Edexcel", "Main pain points": "Exam technique; confidence with harder questions; time management; algebra; problem solving",
+            "Preferred tutoring": "1-to-1 online", "Preferred availability": "Tuesday or Thursday evenings after 6 PM",
+            "Desired start": "Within the next 2–3 weeks", "Budget": "£25–£35 per session",
+            "Parent priorities": "Experienced GCSE tutor; clear progress tracking; regular feedback; transparent pricing",
+            "Main concern": "Price and whether tutoring will improve Oliver's grades",
+            "Lead source": "Website enquiry",
+            "Consultation approval": "Owner confirmation required before offering a consultation",
+        },
+        "status": "RESPONDED", "confirm_fit_after_conversation": True, "candidate_engaged": False, "thread": [
+            ("Customer", "Hi, I'm looking for some extra Maths support for my son Oliver who's currently in Year 10. He's doing okay but struggles quite a bit with exam questions. Could you let me know how much your sessions cost and how your tutoring works?")
+        ],
+        "activity": [
+            {"message": "Website enquiry received from Rachel Thompson.", "kind": "info"},
+            {"message": "Nova is preparing a first reply and will gather more context before deciding fit or recommending a consultation.", "kind": "info"},
+        ],
+        "recommended_next_action": "Reply to Rachel's enquiry and learn more before deciding the next step.",
+        "consultation_draft": "Hi Rachel, thanks for sharing Oliver's situation. Nova Tutors offers one-to-one GCSE Maths support at £30 per 60-minute session. We can't promise a particular grade outcome, but a free 15-minute consultation with a team member is a good way to discuss exam technique, tutor suitability, progress updates, and what sessions include. Would you like us to arrange one? The team can confirm a time and tutor availability.",
+    }
+
+
+def james_lead():
+    return {
+        "id": "james", "parent": "James Carter", "student": "James Carter", "year": None,
+        "age": 19, "relationship": "Self", "education_level": "First-year university student",
+        "location": "Camden, London", "subject": "University Mathematics",
+        "problem": "Struggling with university calculus, linear algebra, lecture material, and coursework.",
+        "current_grade": None, "target_grade": None,
+        "motivation": "Wants weekly private tutoring and would like to start immediately.",
+        "pricing_interest": True, "other_facts": {
+            "Specific topics": "Calculus; Linear Algebra; Probability", "Preferred tutoring": "1-to-1 online",
+            "Preferred availability": "Weekday evenings", "Desired start": "Immediately", "Budget": "£30–£40 per session",
+            "Main pain points": "University calculus; linear algebra; understanding lecture material; coursework support",
+            "Lead source": "Website enquiry",
+        },
+        "status": "RESPONDED", "confirm_fit_after_conversation": True, "candidate_engaged": False, "thread": [
+            ("Customer", "Hi, I'm a first-year university student looking for a Maths tutor. I'm having trouble with calculus and linear algebra and was wondering if you offer weekly online sessions?"),
+        ],
+        "activity": [
+            {"message": "Website enquiry received from James Carter.", "kind": "info"},
+            {"message": "Nova will confirm the level of support James needs before assessing service fit.", "kind": "info"},
+        ],
+        "recommended_next_action": "Ask James to confirm whether he needs university-level or GCSE-level Mathematics support.",
+    }
+
+
+def demo_lead_by_id(lead_id):
+    return {"sarah": new_lead, "rachel": rachel_lead, "james": james_lead}.get(lead_id, new_lead)()
+
+
+def upsert_demo_lead(lead):
+    leads = st.session_state.setdefault("leads", [])
+    for index, existing in enumerate(leads):
+        if existing.get("id") == lead.get("id"):
+            leads[index] = lead
+            break
+    else:
+        leads.append(lead)
+
+
 def lead_line(lead):
+    if lead.get("relationship") == "Self":
+        return lead.get("education_level") or "Student enquiry"
     year = f"Year {lead['year']}" if lead.get("year") else "year unknown"
     return f"Parent of {lead.get('student') or 'student'}, {year}"
 
@@ -501,15 +571,17 @@ def mock_extract_reply_info(lead, text):
     elif re.search(r"\b(yes|yeah|sure|ok|okay|please|sounds good|that works|book)\b", t) \
             and lead.get("status") in ("QUALIFIED", "CONSULTATION OFFERED"):
         lead["outcome"] = "accepted"
-    for w in UNSUPPORTED_WORDS:
-        if w in t:
-            lead["subject"] = w.title()
-            break
+    supported = next((w for w in SUPPORTED_WORDS if w in t), None)
+    if supported and ("gcse" in t or re.search(r"year\s+(9|10|11)\b", t)):
+        lead["subject"] = "GCSE " + ("Maths" if supported.startswith("math") else supported.title())
     else:
-        for w in SUPPORTED_WORDS:
+        for w in UNSUPPORTED_WORDS:
             if w in t:
-                lead["subject"] = "GCSE " + ("Maths" if w.startswith("math") else w.title())
+                lead["subject"] = w.title()
                 break
+        else:
+            if supported:
+                lead["subject"] = "GCSE " + ("Maths" if supported.startswith("math") else supported.title())
     year = re.search(r"year (\d{1,2})", t)
     if year:
         lead["year"] = int(year.group(1))
@@ -530,11 +602,22 @@ def mock_extract_reply_info(lead, text):
 def mock_draft_answer(lead, profile):
     first = lead["parent"].split()[0]
     subject = (lead.get("subject") or "").lower()
+    if lead.get("confirm_fit_after_conversation") and not lead.get("candidate_engaged"):
+        if lead.get("id") == "james":
+            return (f"Hi {first}, thanks for your enquiry. To make sure I point you to the right support, are you "
+                    "looking specifically for tutoring in your university Maths course, or are you asking about GCSE Maths? "
+                    "Nova Tutors currently focuses on GCSE Maths and Science, so I want to confirm what level you need.")
+        return (f"Hi {first}, thanks for getting in touch. GCSE Maths sessions are £30 per 60 minutes and are "
+                "one-to-one, with support tailored to the student's learning needs. Before I recommend a next step, "
+                "which would Oliver most like help with first: exam technique, harder questions, confidence, or time management?")
     if lead.get("status") == "CONSULTATION REQUESTED":
         return (f"Thanks, {first}. A member of the {profile.get('name', 'team')} team will be in touch to confirm "
                 "an exact time based on tutor availability. We haven't booked a time yet.")
     if lead.get("status") == "CLOSED":
         return f"Thanks for letting us know, {first}. We won't contact you further. Please reach out if anything changes."
+    if lead.get("status") == "NOT A FIT":
+        return (f"Hi {first}, thanks for confirming what support you need. Nova Tutors currently focuses on GCSE Maths "
+                "and Science, so we can't provide university-level Mathematics tutoring. I'm sorry we can't help with this request.")
     if lead.get("status") == "NEEDS HUMAN":
         return f"Thanks, {first}. A member of our team will review this and get back to you."
     if any(w in subject for w in UNSUPPORTED_WORDS):
@@ -671,6 +754,8 @@ def draft_answer(lead, profile):
     customer_msgs = [t for who, t in lead["thread"] if who != "Nova"]
     message = customer_msgs[-1] if customer_msgs else ""
     st.session_state["needs_human_reason"] = ""
+    if lead.get("confirm_fit_after_conversation") and not lead.get("candidate_engaged"):
+        return mock_draft_answer(lead, profile)
     if not use_ai():
         return mock_draft_answer(lead, profile)
 
@@ -747,9 +832,11 @@ def handle_customer_message(lead, profile, text):
         return  # ignore accidental double-submit
     lead["thread"].append(("Customer", text))
     log_lead_activity(lead, f"Customer replied: {text[:100]}{'…' if len(text) > 100 else ''}")
+    if lead.get("confirm_fit_after_conversation"):
+        lead["candidate_engaged"] = True
     lead.pop("outcome", None)
     extract_reply_info(lead, text)
-    log_lead_activity(lead, "Nova extracted details from Sarah's reply and refreshed the lead profile.", "success")
+    log_lead_activity(lead, f"Nova extracted details from {lead['parent'].split()[0]}'s reply and refreshed the lead profile.", "success")
     outcome = lead.pop("outcome", None)
 
     if outcome == "accepted":
@@ -764,14 +851,31 @@ def handle_customer_message(lead, profile, text):
         scores = assess(lead, profile)
         if scores["Service fit"] == "LOW":
             lead["status"] = "NOT A FIT"
-            lead["recommended_next_action"] = "Do not pursue this lead; the requested service is unsupported."
+            lead["other_facts"]["Rejection category"] = "Service mismatch"
+            lead["other_facts"]["Human approval required"] = "No"
+            lead["other_facts"]["CRM note"] = "The customer confirmed they need a service outside Nova Tutors' GCSE Maths and Science offering. Do not continue sales follow-ups."
+            lead["recommended_next_action"] = "Close as Not Qualified. Do not continue sales follow-ups."
+            first = lead["parent"].split()[0]
+            reply = (f"Hi {first}, thanks for confirming what support you need. Nova Tutors currently focuses on GCSE Maths "
+                     "and Science, so we can't provide university-level Mathematics tutoring. I'm sorry we can't help with this request.")
+            lead["thread"].append(("Nova", reply))
+            lead["ended"] = True
+            log_lead_activity(lead, "After confirming the customer's needs, Nova identified a service mismatch and closed the lead without human approval.", "warning")
         elif is_qualified(scores):
-            lead["status"] = "QUALIFIED"
-            lead["recommended_next_action"] = "Invite the customer to book a free 15-minute consultation."
+            if lead.get("id") == "rachel":
+                lead["status"] = "CONSULTATION NEEDED"
+                lead["qualification_status"] = "QUALIFIED"
+                lead["recommended_next_action"] = "Offer Rachel a short consultation with a human member of the Nova Tutors team, after owner confirmation."
+                lead.setdefault("consultation_draft", "Hi Rachel, thanks for sharing Oliver's situation. Nova Tutors offers one-to-one GCSE Maths support at £30 per 60-minute session. We can't promise a particular grade outcome, but a free 15-minute consultation with a team member is a good way to discuss exam technique, tutor suitability, progress updates, and what sessions include. Would you like us to arrange one? The team can confirm a time and tutor availability.")
+                log_lead_activity(lead, "After Rachel replied, Nova assessed her as a fit and queued a consultation invitation for owner approval.", "success")
+            else:
+                lead["status"] = "QUALIFIED"
+                lead["recommended_next_action"] = "Invite the customer to book a free 15-minute consultation."
+                log_lead_activity(lead, "Lead assessed as qualified after the customer conversation.", "success")
         else:
             lead["status"] = "RESPONDED"
             lead["recommended_next_action"] = "Ask for the most important missing qualification detail."
-        log_lead_activity(lead, f"Lead assessed. Status is now {lead['status']}.", "success" if lead["status"] == "QUALIFIED" else "info")
+            log_lead_activity(lead, "Nova needs more information before deciding whether the lead is a fit.", "info")
 
     customer_count = sum(1 for who, _ in lead["thread"] if who != "Nova")
     if customer_count >= MAX_CUSTOMER_MESSAGES and lead["status"] not in TERMINAL:
@@ -798,7 +902,7 @@ def show_outcome(lead):
         st.markdown("**Handoff for a team member:** confirm a time based on tutor availability. "
                     "Nova can't confirm a booking by itself.")
     elif status == "NOT A FIT":
-        st.info("❌ Nova politely explained it can't help with this request. Conversation closed.")
+        st.info("❌ Not qualified: Nova explained the service mismatch and closed the lead. No human approval is needed.")
     elif status == "NEEDS HUMAN":
         st.warning("🙋 This conversation went on a long time, so Nova is handing it to a team member.")
     else:
@@ -814,39 +918,48 @@ def screen_active():
     st.markdown('<div class="nova-kicker">Workspace overview</div>', unsafe_allow_html=True)
     st.title(f"Nova is ready for {st.session_state.profile.get('name', 'your business')} ✨")
     st.caption("Review leads, prepare thoughtful outreach, and keep every customer conversation grounded in your business profile.")
-    lead = st.session_state.lead
+    leads = st.session_state.setdefault("leads", [])
+    selected = st.session_state.get("lead")
+    if selected and not any(item.get("id") == selected.get("id") for item in leads):
+        leads.append(selected)
     c1, c2, c3 = st.columns(3)
-    c1.metric("Leads", 1 if lead else 0)
-    c2.metric("Awaiting approval", 1 if lead and lead["status"] == "AWAITING APPROVAL" else 0)
-    c3.metric("Qualified", 1 if lead and lead["status"] in ("QUALIFIED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED") else 0)
+    c1.metric("Leads", len(leads))
+    c2.metric("Awaiting approval", sum(1 for item in leads if item.get("status") in ("AWAITING APPROVAL", "CONSULTATION NEEDED")))
+    c3.metric("Qualified / consultation", sum(1 for item in leads if item.get("status") in ("QUALIFIED", "CONSULTATION NEEDED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED")))
 
     h, add = st.columns([4, 1])
     h.subheader("Lead pipeline")
-    if lead is None:
-        if add.button("＋ Add Sarah Johnson", type="primary", use_container_width=True):
-            st.session_state.lead = new_lead()
-            log_lead_activity(st.session_state.lead, "Sarah Johnson added as a new demo lead.", "success")
+    if not leads:
+        if add.button("＋ Load demo leads", type="primary", use_container_width=True):
+            st.session_state.leads = [new_lead(), rachel_lead(), james_lead()]
+            st.session_state.lead = None
+            for item in st.session_state.leads:
+                log_lead_activity(item, f"{item['parent']} added to the demo pipeline.", "success")
+            log_activity("Three sample leads loaded. Rachel and James start as unassessed enquiries and need a conversation before Nova decides fit.", "success")
             st.rerun()
     else:
-        if add.button("↻ Reset Sarah", use_container_width=True):
-            st.session_state.lead = new_lead()
+        if add.button("↻ Reset leads", use_container_width=True):
+            st.session_state.leads = [new_lead(), rachel_lead(), james_lead()]
+            st.session_state.lead = None
             st.session_state.outreach_draft = ""
             st.session_state.editing_outreach = False
-            log_lead_activity(st.session_state.lead, "Sarah's demo lead was reset to the approval step.")
+            log_activity("All three sample leads were reset to their starting states.", "success")
             st.rerun()
-    if lead is None:
+    if not leads:
         with st.container(border=True):
-            st.markdown("### Start the demo journey")
-            st.write("Add the sample lead to see Nova prepare outreach, pause for your approval, and continue the conversation.")
+            st.markdown("### Three demo outcomes")
+            st.write("Load Sarah, Rachel, and James. Rachel and James begin as enquiries; Nova must talk with them before it decides fit or recommends a consultation.")
     else:
-        with st.container(border=True):
-            a, b, c, d = st.columns([3, 2, 2, 1])
-            a.markdown(f"**{lead['parent']}**  \n{lead_line(lead)}")
-            b.write(lead["subject"])
-            c.write(f"{STATUS_ICON.get(lead['status'], '')} {lead['status']}")
-            if d.button("Open", type="primary"):
-                st.session_state.stage = "lead"
-                st.rerun()
+        for item in leads:
+            with st.container(border=True):
+                a, b, c, d = st.columns([2.5, 1.5, 1.7, .8])
+                a.markdown(f"**{item['parent']}**  \n{lead_line(item)}")
+                b.write(item["subject"])
+                c.markdown(f"**{STATUS_ICON.get(item['status'], '')} {item['status']}**")
+                if d.button("Open", type="primary", key=f"open_{item.get('id', item['parent'])}"):
+                    st.session_state.lead = item
+                    st.session_state.stage = "lead"
+                    st.rerun()
 
     left, right = st.columns([3, 2], gap="large")
     with left:
@@ -874,10 +987,11 @@ def screen_lead():
         st.session_state.stage = "active"
         st.rerun()
     if t2.button("Reset this lead"):
-        st.session_state.lead = new_lead()
+        st.session_state.lead = demo_lead_by_id(lead.get("id", "sarah"))
+        upsert_demo_lead(st.session_state.lead)
         st.session_state.outreach_draft = ""
         st.session_state.editing_outreach = False
-        log_lead_activity(st.session_state.lead, "Sarah's demo lead was reset to the approval step.")
+        log_lead_activity(st.session_state.lead, f"{lead['parent']}'s demo lead was reset.")
         st.rerun()
     if lead["thread"] and not lead.get("ended") and t3.button("End conversation"):
         lead["status"] = "CLOSED"
@@ -892,11 +1006,30 @@ def screen_lead():
 
     # ---- right: what Nova knows and thinks about this lead ----
     with right:
-        scores, note = assess_full(lead, profile)
+        wait_for_talk = lead.get("confirm_fit_after_conversation") and not lead.get("candidate_engaged")
+        if wait_for_talk:
+            scores = {"Service fit": "UNKNOWN", "Need": "UNKNOWN", "Urgency": "UNKNOWN", "Intent": "UNKNOWN"}
+            note = {
+                "summary": "Initial enquiry received. Nova will confirm the customer's needs before assessing fit.",
+                "missing": [],
+                "next": "Reply to the enquiry and wait for the customer's answer before deciding.",
+            }
+        else:
+            scores, note = assess_full(lead, profile)
         with st.container(border=True):
             st.markdown("**What Nova knows**")
             st.markdown(f"{lead_line(lead)}")
             st.markdown(f"Wants: **{lead.get('subject') or 'Unknown'}**")
+            if lead.get("relationship"):
+                st.markdown(f"Relationship: **{lead['relationship']}**")
+            if lead.get("age"):
+                st.markdown(f"Age: **{lead['age']}**")
+            if lead.get("location"):
+                st.markdown(f"Location: **{lead['location']}**")
+            if lead.get("education_level"):
+                st.markdown(f"Education: **{lead['education_level']}**")
+            if lead.get("problem"):
+                st.markdown(f"Need: {lead['problem']}")
             st.markdown(f"Current grade: **{lead['current_grade'] or 'Unknown'}**")
             st.markdown(f"Target grade: **{lead['target_grade'] or 'Unknown'}**")
             st.markdown(f"Motivation: {lead['motivation'] or 'Unknown'}")
@@ -912,10 +1045,9 @@ def screen_lead():
                 st.caption(str(note["summary"]))
             if note.get("missing"):
                 st.markdown("**Still needed:** " + ", ".join(str(m) for m in note["missing"]))
-            if note.get("next"):
-                st.markdown("**Next step:** " + str(note["next"]))
-            elif lead.get("recommended_next_action"):
-                st.markdown("**Recommended next action:** " + str(lead["recommended_next_action"]))
+            next_action = lead.get("recommended_next_action") or note.get("next")
+            if next_action:
+                st.markdown("**Recommended next action:** " + str(next_action))
         if lead["status"] in ("QUALIFIED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED"):
             with st.container(border=True):
                 st.success("✅ Qualified lead")
@@ -923,7 +1055,10 @@ def screen_lead():
                 st.write(note.get("next") or lead.get("recommended_next_action") or "Invite Sarah to a free 15-minute consultation.")
                 if lead.get("status") == "CONSULTATION REQUESTED":
                     st.caption("A team member should confirm the exact time against tutor availability.")
-        if lead["status"] == "RESPONDED" and not lead.get("ended"):
+        elif lead["status"] == "CONSULTATION NEEDED":
+            st.warning("Consultation needed · waiting for your confirmation")
+            st.write(lead.get("recommended_next_action", "Review the consultation recommendation."))
+        if lead["status"] == "RESPONDED" and not lead.get("ended") and not wait_for_talk:
             if st.button("Qualify anyway (owner decision)"):
                 lead["status"] = "QUALIFIED"
                 lead["recommended_next_action"] = "Invite the customer to book a free 15-minute consultation."
@@ -990,6 +1125,33 @@ def screen_lead():
                     log_lead_activity(lead, "Owner rejected the outreach draft. Workflow stopped.", "warning")
                     st.rerun()
 
+        elif status == "CONSULTATION NEEDED":
+            st.markdown("### Consultation recommendation")
+            st.warning("Approval required · Nova will wait here until you confirm the next step.")
+            st.write("Nova recommends a short conversation with a team member so Rachel can ask about tutor suitability, session pricing, and progress tracking.")
+            draft = st.text_area(
+                "Review or edit the invitation",
+                value=lead.get("consultation_draft", ""),
+                height=220,
+                key=f"consultation_draft_{lead.get('id', 'lead')}",
+            )
+            show_guardrail_check(draft, profile)
+            approve_col, reject_col = st.columns(2)
+            if approve_col.button("Confirm and invite Rachel", type="primary", use_container_width=True):
+                if draft.strip():
+                    lead["consultation_draft"] = draft.strip()
+                    lead["thread"].append(("Nova", draft.strip()))
+                    lead["status"] = "CONSULTATION OFFERED"
+                    lead["recommended_next_action"] = "Wait for Rachel's response; a team member should confirm tutor suitability and exact availability."
+                    log_lead_activity(lead, "Owner confirmed Nova's consultation recommendation and approved the invitation.", "success")
+                    st.rerun()
+            if reject_col.button("Reject recommendation", use_container_width=True):
+                lead["status"] = "CLOSED"
+                lead["ended"] = True
+                lead["recommended_next_action"] = "Owner declined the consultation recommendation. Do not send an invitation."
+                log_lead_activity(lead, "Owner rejected the consultation recommendation. No message was sent.", "warning")
+                st.rerun()
+
         else:
             last_who = lead["thread"][-1][0] if lead["thread"] else "Nova"
             if last_who == "Nova":
@@ -998,7 +1160,13 @@ def screen_lead():
                 st.info("Your turn: reply to Nova as the customer. Explain your situation like a real parent would.")
                 if status == "CONSULTATION OFFERED":
                     sample = "Yes, we'd like to book a free consultation."
-                    sample_label = "Use Sarah's sample acceptance"
+                    sample_label = f"Use {lead['parent'].split()[0]}'s sample acceptance"
+                elif lead.get("id") == "rachel":
+                    sample = "Exam technique and time management are the biggest issues. Oliver is currently around Grade 5 and we'd like him to reach Grade 7. He is doing Edexcel GCSE Maths."
+                    sample_label = "Use Rachel's sample reply"
+                elif lead.get("id") == "james":
+                    sample = "Yes, I need help with my first-year university Maths course, especially calculus and linear algebra."
+                    sample_label = "Use James's sample reply"
                 else:
                     sample = ("He's currently getting around a 4 and needs a 6 for sixth form. "
                               "How much would tutoring be?")
