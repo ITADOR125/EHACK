@@ -1013,11 +1013,49 @@ def backend_client():
     return BackendClient(os.getenv("NOVA_BACKEND_URL", "http://127.0.0.1:8000"))
 
 
+
 def screen_backend_lead():
     if st.button("← Back", key="backend_lead_back"):
         st.session_state.stage = st.session_state.get("inspection_return_stage", "start")
         st.rerun()
-    render_inspection(st, backend_client(), "sarah-johnson")
+
+    client = backend_client()
+    render_inspection(st, client, "sarah-johnson")
+
+    st.divider()
+    st.subheader("Nova agent")
+
+    if st.button("Generate & safety-check draft", type="primary", key="generate_sarah_draft"):
+        try:
+            from brain_adapter import propose
+
+            lead = client.get_lead("sarah-johnson")
+            business = client.get_business(lead["businessId"])
+            messages = client.get_conversation_history(lead["id"])
+
+            proposal = propose(business, lead, messages)
+            evaluation = client.evaluate_proposal(proposal)
+
+            st.session_state["sarah_proposal"] = proposal
+            st.session_state["sarah_evaluation"] = evaluation
+
+        except Exception as error:
+            st.error(f"Could not generate or evaluate proposal: {error}")
+
+    proposal = st.session_state.get("sarah_proposal")
+    evaluation = st.session_state.get("sarah_evaluation")
+
+    if proposal and evaluation:
+        st.markdown("**Proposed message**")
+        st.write(proposal["proposedMessage"]["content"] if proposal["proposedMessage"] else "No message proposed.")
+
+        st.write("Proposed action:", proposal["action"])
+        st.write("Human approval required:", proposal["brainRequiresHumanApproval"])
+        st.write("Safety decision:", evaluation["safetyDecision"])
+        st.write("Safety reason:", evaluation["reason"])
+
+        st.caption("Preview only — no message sent and no lead changes made.")
+
 
 
 def screen_lead():

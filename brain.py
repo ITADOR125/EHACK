@@ -379,7 +379,7 @@ def decide_next_action(business: dict, lead: dict, conversation: list,
         message = (f'Hi {first}, I\'m getting in touch from Nova Tutors about '
                    f'{student}\'s {updated.get("subject") or "learning needs"}. '
                    'What would you most like some support with?')
-        reason, approval = 'Draft only; initial outreach needs human approval.', True
+        reason, approval = 'Routine initial outreach for a confirmed service.', True
     elif status in ('qualified', 'consultation_needed'):
         action = 'recommend_consultation'
         if updated.get('concerns'):

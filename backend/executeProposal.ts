@@ -3,7 +3,10 @@ import type { AgentAction } from "../lib/models.js";
 import type * as agentTools from "../lib/agentTools.js";
 import { evaluateProposal, parseProposal, ProposalInputError } from "./evaluateProposal.js";
 
-export type ExecutionTools = Pick<typeof agentTools, "getBusiness" | "getLead" | "getConversationHistory"> & {
+export type ExecutionTools = Pick<
+  typeof agentTools,
+  "getBusiness" | "getLead" | "getConversationHistory"
+> & {
   logAction(action: AgentAction, options: { idempotencyKey: string }): Promise<{ action: AgentAction; created: boolean }>;
 };
 

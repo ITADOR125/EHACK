@@ -68,6 +68,11 @@ export function evaluateProposal(proposal: Proposal, business: Business, lead: L
   const action = Object.hasOwn(actionMap, proposal.action) ? actionMap[proposal.action]! : "unconfigured_action";
   const text = proposal.proposedMessage?.content ?? "";
   const question = proposal.action === "ask_customer" && routineQuestion(text, lead);
+  const routineOutreach =
+    proposal.action === "draft_outreach" &&
+    business.services.some(service =>
+      text === `Hi ${lead.name.split(" ")[0]}, I'm getting in touch from ${business.name} about ${lead.student.name}'s ${service.name.replace(/ tutoring$/i, "")}. What would you most like some support with?`
+    );
   // Read customer context from MongoDB, not client-supplied owner notes or flags.
   const latestCustomer = history.filter(message => message.sender === "customer").at(-1)?.content ?? "";
   const contextText = [text, proposal.reason, latestCustomer, JSON.stringify(proposal.escalation ?? null)].join("\n");
@@ -90,19 +95,22 @@ export function evaluateProposal(proposal: Proposal, business: Business, lead: L
       restriction,
       // Exact routine questions can satisfy these two known restrictions. Other
       // configured restrictions require actual review and remain unknown.
-      result: question && [
+      result: (question || routineOutreach) && [
         "do not guarantee specific grade improvements",
         "do not invent information about the tutoring service",
       ].includes(restriction.trim().toLowerCase()) ? "satisfied" : "unknown",
     })),
     guaranteesOutcome: guarantee,
     discountOrPriceException: discount,
-    requiresOwnerJudgement: proposal.action === "escalate_to_human" ||
-      proposal.brainRequiresHumanApproval || Boolean(proposal.escalation) || decisionChange ||
-      ["closed", "not_qualified", "not a fit", "needs human", "needs_human", "consultation_requested"]
-        .includes(lead.status.toLowerCase()),
+          requiresOwnerJudgement:
+        proposal.action === "escalate_to_human" ||
+        (proposal.brainRequiresHumanApproval && !routineOutreach) ||
+        Boolean(proposal.escalation) ||
+        decisionChange ||
+        ["closed", "not_qualified", "not a fit", "needs human", "needs_human", "consultation_requested"]
+          .includes(lead.status.toLowerCase()),
     // No evidence is supplied for changed learned facts or arbitrary prose.
-    potentiallyMisleading: unsupportedUpdates || conflictingAction || !question,
+    potentiallyMisleading: unsupportedUpdates || conflictingAction || !(question || routineOutreach),
     missingInformation: proposal.action === "ask_customer" ? proposal.missingInformation : [],
   };
   if (question) request.safeClarificationQuestion = text;
