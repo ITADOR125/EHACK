@@ -247,3 +247,4 @@ if __name__ == "__main__":
     # Quick self-test: python agent.py
     demo_profile = {"name": "Nova Tutors", "pricing": "£30 per hour", "guardrails": "Never guarantee grades"}
     print(check_guardrails(demo_profile, "We guarantee a grade 7 for just £20 an hour!"))
+    
