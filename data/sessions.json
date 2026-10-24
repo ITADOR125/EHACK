@@ -1,0 +1,150 @@
+{
+  "active": "alex",
+  "sessions": {
+    "sarah": {
+      "lead": {
+        "id": "sarah",
+        "name": "Sarah Johnson",
+        "relationship_to_student": "Parent / Guardian",
+        "student_name": "Daniel",
+        "year": "Year 11",
+        "subject": "GCSE Maths",
+        "current_grade": null,
+        "target_grade": null,
+        "exam_board": "Edexcel",
+        "tier": "Higher",
+        "reason": "Wants GCSE Maths support",
+        "customer_location": null,
+        "delivery_preference": null,
+        "intent_confirmed": false,
+        "lead_status": "needs_information"
+      },
+      "conversation": [
+        {
+          "role": "customer",
+          "content": "He's doing Edexcel Higher."
+        },
+        {
+          "role": "agent",
+          "content": "Would you prefer online or in-person tutoring?",
+          "delivery": "simulated"
+        }
+      ],
+      "pending_draft": null,
+      "review_status": "not_required",
+      "escalation": null
+    },
+    "rachel": {
+      "lead": {
+        "id": "rachel",
+        "name": "Rachel Thompson",
+        "relationship_to_student": "Parent / Guardian",
+        "student_name": "Oliver Thompson",
+        "student_age": 15,
+        "year": "Year 10",
+        "subject": "GCSE Maths",
+        "current_grade": 5,
+        "target_grade": "7+",
+        "exam_board": "Edexcel",
+        "tier": null,
+        "customer_location": "Islington, London",
+        "reason": "Exam-style questions, timing and confidence before Year 11",
+        "specific_topics": [
+          "Exam technique",
+          "Time management",
+          "Algebra",
+          "Problem solving"
+        ],
+        "delivery_preference": "online",
+        "preferred_availability": "Tuesday or Thursday evenings after 6 PM",
+        "desired_start": "Within 2–3 weeks",
+        "budget": "£25–£35 per session",
+        "parent_priorities": [
+          "Experienced GCSE tutor",
+          "Progress tracking",
+          "Regular feedback"
+        ],
+        "concerns": [
+          "Price",
+          "Grade improvement cannot be guaranteed"
+        ],
+        "lead_source": "Website enquiry",
+        "intent_confirmed": true,
+        "lead_status": "consultation_needed",
+        "initial_message": "Hi, I am looking for extra Maths support for Oliver, who is in Year 10. He struggles with exam questions. How much do your sessions cost and how does tutoring work?"
+      },
+      "conversation": [
+        {
+          "role": "customer",
+          "content": "Hi, I am looking for extra Maths support for Oliver, who is in Year 10. He struggles with exam questions. How much do your sessions cost and how does tutoring work?"
+        },
+        {
+          "role": "agent",
+          "content": "Of course, Rachel. Our GCSE tutoring costs £30 per 60-minute one-to-one session. It includes personalised academic support, practice materials and progress feedback. For Oliver Thompson, sessions could focus on exam technique, time management. We can discuss the priorities in a free 15-minute consultation. No grade improvement or particular lesson slot can be guaranteed.",
+          "delivery": "simulated"
+        },
+        {
+          "role": "customer",
+          "content": "Could we have the free consultation?"
+        }
+      ],
+      "pending_draft": "Thanks, Rachel. It makes sense to want clarity on tutor suitability, cost and progress for Oliver Thompson, especially around exam technique, time management. Our free 15-minute consultation is a chance to discuss those questions and the next steps. What days generally suit you? A team member would need to confirm the booking.",
+      "review_status": "not_required",
+      "escalation": null
+    },
+    "james": {
+      "lead": {
+        "id": "james",
+        "name": "James Carter",
+        "relationship_to_student": "Self",
+        "student_name": "James Carter",
+        "student_age": 19,
+        "year": "First-year university",
+        "subject": "University Mathematics",
+        "customer_location": "Camden, London",
+        "reason": "Needs tutoring in university-level calculus and linear algebra",
+        "specific_topics": [
+          "Calculus",
+          "Linear Algebra",
+          "Probability"
+        ],
+        "delivery_preference": "online",
+        "preferred_availability": "Weekday evenings",
+        "desired_start": "Immediately",
+        "budget": "£30–£40 per session",
+        "lead_source": "Website enquiry",
+        "intent_confirmed": true,
+        "lead_status": "not_qualified",
+        "rejection_category": "Service mismatch",
+        "initial_message": "I am a first-year university student struggling with calculus and linear algebra. Do you offer weekly online Maths tutoring?"
+      },
+      "conversation": [
+        {
+          "role": "customer",
+          "content": "I am a first-year university student struggling with calculus and linear algebra. Do you offer weekly online Maths tutoring?"
+        },
+        {
+          "role": "agent",
+          "content": "Thanks for reaching out, James. We don't currently offer University Mathematics. Our university admissions support is separate from university-level subject tutoring. I don't want to imply we can provide a service we do not offer.",
+          "delivery": "simulated"
+        }
+      ],
+      "pending_draft": null,
+      "review_status": "not_required",
+      "escalation": null
+    },
+    "alex": {
+      "lead": {
+        "id": "alex",
+        "name": "Alex LEE",
+        "subject": null,
+        "lead_status": "new",
+        "intent_confirmed": false
+      },
+      "conversation": [],
+      "pending_draft": null,
+      "review_status": "not_required",
+      "escalation": null
+    }
+  }
+}
