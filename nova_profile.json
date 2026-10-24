@@ -16,7 +16,7 @@
     "availability": "Mon-Fri 4-8pm, Sat 10am-5pm, Sun 10am-4pm. Exact tutor availability varies."
   },
   "onboarding": {
-    "mode": 3,
+    "mode": 2,
     "completed": true,
     "confirmedByOwner": true
   }

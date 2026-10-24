@@ -13,9 +13,8 @@ st.set_page_config(page_title="Nova", page_icon="✨", layout="wide")
 # Streamlit-native so the chat, forms, and buttons keep their usual behavior.
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 :root { color-scheme:light; --ink:#18221f; --muted:#52635a; --green:#126448; --mint:#e8f5ef; --line:#dce6df; --paper:#fbfcfa; }
-html, body, [class*="css"], .stApp { font-family:'DM Sans',sans-serif; color:var(--ink) !important; }
+html, body, [class*="css"], .stApp { font-family:Inter, 'Segoe UI', Arial, sans-serif; color:var(--ink) !important; }
 .stApp { background:var(--paper); }
 [data-testid="stAppViewContainer"] { background:var(--paper); }
 [data-testid="stMarkdownContainer"], [data-testid="stMarkdownContainer"] p,
@@ -25,18 +24,19 @@ html, body, [class*="css"], .stApp { font-family:'DM Sans',sans-serif; color:var
 label, .stRadio p, .stCheckbox p, .stSelectbox p { color:var(--ink) !important; }
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p { color:var(--muted) !important; }
 [data-testid="stAlert"] p, [data-testid="stAlert"] div { color:#18221f !important; }
-[data-testid="stHeader"] { background:rgba(251,252,250,.92); }
+[data-testid="stHeader"] { background:#fbfcfa !important; }
 [data-testid="stSidebar"] { background:#f1f6f2; border-right:1px solid var(--line); }
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"], [data-testid="stSidebar"] p,
 [data-testid="stSidebar"] label { color:#26382f !important; }
-.block-container { max-width:1440px; padding-top:2.1rem; padding-bottom:3rem; }
-h1,h2,h3,h4 { font-family:'Manrope',sans-serif !important; letter-spacing:-.035em; color:var(--ink) !important; }
+.block-container { width:100% !important; max-width:1200px !important; margin-left:auto !important; margin-right:auto !important; box-sizing:border-box; padding:1.7rem clamp(1rem, 2.5vw, 2.25rem) 3rem !important; }
+[data-testid="stColumn"], [data-testid="stHorizontalBlock"] { min-width:0 !important; }
+h1,h2,h3,h4 { font-family:Inter, 'Segoe UI', Arial, sans-serif !important; letter-spacing:-.035em; color:var(--ink) !important; }
 h1 { font-size:2.35rem !important; font-weight:800 !important; }
 h2 { font-size:1.6rem !important; font-weight:750 !important; }
 p, label { line-height:1.65; }
 [data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 5px 18px rgba(25,50,38,.035); }
 [data-testid="stMetricLabel"] { color:var(--muted); }
-[data-testid="stMetricValue"] { font-family:'Manrope',sans-serif; font-weight:800; }
+[data-testid="stMetricValue"] { font-family:Inter, 'Segoe UI', Arial, sans-serif; font-weight:800; }
 [data-testid="stMetricLabel"] *, [data-testid="stMetricValue"] * { color:var(--ink) !important; }
 [data-testid="stVerticalBlockBorderWrapper"] { border-color:var(--line) !important; border-radius:18px !important; background:#fff; box-shadow:0 7px 24px rgba(25,50,38,.035); }
 .stButton>button { border-radius:11px; min-height:2.65rem; font-weight:700; border:1px solid #cbd9d0 !important; background:#ffffff !important; color:#18221f !important; transition:all .16s ease; }
@@ -49,16 +49,21 @@ p, label { line-height:1.65; }
 [data-testid="stChatInput"] textarea, [data-testid="stTextArea"] textarea, [data-testid="stTextInput"] input { border-radius:12px; }
 [data-testid="stChatInput"] textarea, [data-testid="stTextArea"] textarea, [data-testid="stTextInput"] input,
 [data-testid="stSelectbox"] input { color:#18221f !important; background:#fff !important; caret-color:#126448; }
+[data-testid="stTextArea"] textarea:disabled, [data-testid="stTextInput"] input:disabled {
+    color:#18221f !important; -webkit-text-fill-color:#18221f !important; opacity:1 !important;
+    background:#f7faf8 !important; cursor:default;
+}
 [data-testid="stChatInput"] textarea::placeholder, [data-testid="stTextArea"] textarea::placeholder,
 [data-testid="stTextInput"] input::placeholder { color:#697a71 !important; opacity:1; }
 [data-testid="stProgressBar"] > div > div { background:var(--green); }
 [data-testid="stExpander"] { border-color:var(--line); border-radius:14px; background:#fff; }
+
 .nova-kicker { color:var(--green); text-transform:uppercase; letter-spacing:.14em; font-size:.72rem; font-weight:800; margin-bottom:.4rem; }
-.nova-hero { border:1px solid #dce9df; border-radius:24px; padding:2.6rem 2.8rem; background:radial-gradient(circle at 90% 5%,#dbf1e6 0,transparent 30%),linear-gradient(135deg,#fff 0%,#f2f8f3 100%); box-shadow:0 12px 38px rgba(25,50,38,.055); margin:.5rem 0 1.4rem; }
+.nova-hero { border:1px solid #dce9df; border-radius:24px; padding:2.6rem 2.8rem 2.6rem 2.3rem; background:radial-gradient(circle at 90% 5%,#dbf1e6 0,transparent 30%),linear-gradient(135deg,#fff 0%,#f2f8f3 100%); box-shadow:0 12px 38px rgba(25,50,38,.055); margin:.5rem 0 1.4rem; }
 .nova-hero h1 { font-size:3rem !important; margin:.1rem 0 .6rem; }
 .nova-hero p { color:#586a60; font-size:1.05rem; max-width:680px; }
 .nova-pill { display:inline-block; background:#e5f2e9; color:#17684f; border-radius:99px; padding:.38rem .75rem; font-size:.78rem; font-weight:700; }
-@media (max-width:800px) { .block-container{padding:1rem 1rem 2rem}.nova-hero{padding:1.5rem}.nova-hero h1{font-size:2.3rem !important} }
+@media (max-width:800px) { .block-container{padding:1rem 1rem 2rem !important}.nova-hero{padding:1.5rem}.nova-hero h1{font-size:2.3rem !important} }
 </style>
 """, unsafe_allow_html=True)
 
@@ -145,10 +150,23 @@ def init_state():
         "profile": {},         # key -> text
         "unsure": set(),       # keys the owner didn't know
         "lead": None,          # the current lead (Sarah Johnson)
+        "activity": [],
+        "outreach_draft": "",
+        "editing_outreach": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
+
+
+def log_activity(message, kind="info"):
+    """Append a human-readable event to the demo activity timeline."""
+    st.session_state.setdefault("activity", []).append({"message": message, "kind": kind})
+
+
+def log_lead_activity(lead, message, kind="info"):
+    lead.setdefault("activity", []).append({"message": message, "kind": kind})
+    log_activity(message, kind)
 
 
 def active_fields():
@@ -185,6 +203,7 @@ def handle_answer(text):
         st.session_state.profile.update(ai_extract(key, text))
         st.session_state.profile.setdefault(key, text.strip())
         st.session_state.unsure.discard(key)
+    log_activity(f"Business profile updated: {field[2]}.", "success")
 
     nxt = next_field()
     if nxt:
@@ -194,6 +213,7 @@ def handle_answer(text):
             {"role": "assistant", "content": "That's everything I need for now. Let me show you what I've learned."}
         )
         st.session_state.stage = "review"
+        log_activity("Onboarding questions complete. Profile is ready for owner review.", "success")
 
 
 # ---------------------------------------------------------------
@@ -251,11 +271,13 @@ def screen_start():
         st.session_state.level = MODES[mode]
         st.session_state.stage = "chat"
         ask(next_field())
+        log_activity("Business onboarding started.")
         st.rerun()
     if c2.button("Skip with Nova Tutors demo data"):
         st.session_state.level = MODES[mode]
         st.session_state.profile = {k: v for k, v in DEMO.items() if v}
         st.session_state.stage = "review"
+        log_activity("Nova Tutors demo profile loaded.", "success")
         st.rerun()
 
 
@@ -310,6 +332,7 @@ def screen_review():
     if st.button("Looks good: Activate Nova", type="primary", disabled=bool(missing)):
         save_profile()
         st.session_state.stage = "active"
+        log_activity(f"{st.session_state.profile.get('name', 'Business')} profile reviewed and Nova activated.", "success")
         st.rerun()
 
 
@@ -334,7 +357,7 @@ def save_profile():
 # drafts replies (you approve them) and qualifies you when it knows enough.
 # ---------------------------------------------------------------
 STATUS_ICON = {
-    "NEW": "🆕", "CONTACTED": "📤", "RESPONDED": "💬", "QUALIFIED": "✅",
+    "NEW": "🆕", "AWAITING APPROVAL": "🟠", "CONTACTED": "📤", "RESPONDED": "💬", "QUALIFIED": "✅",
     "CONSULTATION OFFERED": "📅", "CONSULTATION REQUESTED": "🎉", "NOT A FIT": "❌",
     "CLOSED": "🔒", "NEEDS HUMAN": "🙋",
 }
@@ -348,12 +371,13 @@ UNSUPPORTED_WORDS = ("english", "history", "geography", "french", "spanish", "ge
 SUPPORTED_WORDS = ("maths", "math", "biology", "chemistry", "physics", "science")
 
 
-def new_lead():
+def new_lead(parent="Sarah Johnson", student="Daniel", year=11, subject="GCSE Maths"):
     return {
-        "parent": "Sarah Johnson", "student": "Daniel", "year": 11, "subject": "GCSE Maths",
+        "parent": parent, "student": student, "year": year, "subject": subject,
         "problem": "Needs additional Maths support.",
         "current_grade": None, "target_grade": None, "motivation": None, "pricing_interest": False,
-        "other_facts": {}, "status": "NEW", "thread": [],
+        "other_facts": {}, "status": "AWAITING APPROVAL", "thread": [],
+        "activity": [], "recommended_next_action": "Review and approve the personalized first outreach.",
     }
 
 
@@ -386,6 +410,50 @@ def mock_assess(lead, profile):
     }
 
 
+def normalize_agent_assessment(result):
+    """Adapt common structured agent response shapes to Nova's UI contract.
+
+    Supported forms include the current flat agent.py result and a nested
+    Fatima-style object such as {assessment: {...}, next_action: ...}.
+    Unknown fields are preserved in `raw` for later UI integration.
+    """
+    result = result if isinstance(result, dict) else {}
+    result = result.get("data") or result.get("result") or result
+    if not isinstance(result, dict):
+        result = {}
+    nested = (result.get("assessment") or result.get("lead_assessment") or
+              result.get("lead_analysis") or result.get("scores") or {})
+    if not isinstance(nested, dict):
+        nested = {}
+    aliases = {
+        "Service fit": ("service_fit", "serviceFit", "fit"),
+        "Need": ("need", "need_level"),
+        "Urgency": ("urgency", "urgency_level"),
+        "Intent": ("intent", "intent_level"),
+    }
+    scores = {}
+    for label, keys in aliases.items():
+        value = next((result.get(k) for k in keys if result.get(k) is not None), None)
+        if value is None:
+            value = next((nested.get(k) for k in (label, *keys) if nested.get(k) is not None), None)
+        if isinstance(value, dict):
+            value = value.get("score") or value.get("level") or value.get("value")
+        value = str(value or "UNKNOWN").strip().upper()
+        scores[label] = value if value in {"HIGH", "MEDIUM", "LOW", "UNKNOWN"} else "UNKNOWN"
+
+    summary = result.get("summary") or result.get("lead_summary") or nested.get("summary") or ""
+    missing = result.get("missing") or result.get("missing_information") or result.get("missing_info") or []
+    next_action = (result.get("next_action") or result.get("recommended_next_action") or
+                   result.get("recommendation") or "")
+    if isinstance(missing, str):
+        missing = [missing]
+    return {
+        "scores": scores,
+        "note": {"summary": str(summary), "missing": missing, "next": str(next_action)},
+        "raw": result,
+    }
+
+
 def mock_draft_outreach(lead, profile):
     biz = profile.get("name", "our team")
     return (
@@ -397,6 +465,33 @@ def mock_draft_outreach(lead, profile):
         f"{lead['student']} is at and what would help. Would you like to hear more?\n\n"
         f"Kind regards,\n{biz}"
     )
+
+
+def normalize_agent_draft(result):
+    """Accept plain text or a structured agent response for a draft message."""
+    if isinstance(result, str):
+        return result.strip()
+    if isinstance(result, dict):
+        result = result.get("data") or result.get("result") or result
+        if isinstance(result, dict):
+            for key in ("draft", "outreach", "outreach_draft", "draft_message", "message", "text", "content", "reply"):
+                value = result.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+    return ""
+
+
+def normalize_profile_extraction(result):
+    """Unwrap structured extraction payloads while keeping the profile keys flat."""
+    if not isinstance(result, dict):
+        return {}
+    result = result.get("data") or result.get("result") or result
+    if not isinstance(result, dict):
+        return {}
+    for key in ("fields", "profile_fields", "extracted_fields", "business_profile"):
+        if isinstance(result.get(key), dict):
+            return result[key]
+    return result
 
 
 def mock_extract_reply_info(lead, text):
@@ -435,13 +530,24 @@ def mock_extract_reply_info(lead, text):
 def mock_draft_answer(lead, profile):
     first = lead["parent"].split()[0]
     subject = (lead.get("subject") or "").lower()
+    if lead.get("status") == "CONSULTATION REQUESTED":
+        return (f"Thanks, {first}. A member of the {profile.get('name', 'team')} team will be in touch to confirm "
+                "an exact time based on tutor availability. We haven't booked a time yet.")
+    if lead.get("status") == "CLOSED":
+        return f"Thanks for letting us know, {first}. We won't contact you further. Please reach out if anything changes."
+    if lead.get("status") == "NEEDS HUMAN":
+        return f"Thanks, {first}. A member of our team will review this and get back to you."
     if any(w in subject for w in UNSUPPORTED_WORDS):
         return (f"Hi {first}, thanks for getting in touch. At the moment we only offer GCSE Maths and Science "
                 f"tutoring, so we wouldn't be able to help with {lead['subject']}. I'm sorry we can't help this time.")
     pricing = profile.get("pricing")
     if lead["pricing_interest"] and pricing:
+        if lead.get("status") == "QUALIFIED":
+            return (f"Hi {first}, thanks for sharing that. Sessions are {pricing}. Based on what you've told me, "
+                    "a free 15-minute consultation would be a helpful next step. Would you like us to arrange one? "
+                    "A team member can confirm a time based on tutor availability.")
         return (f"Hi {first}, thanks for the details. On pricing: {pricing}\n\n"
-                f"Would you like to find out more before deciding?")
+                f"Could you also share {lead['student']}'s current grade and target grade?")
     return (f"Hi {first}, thanks for sharing that. To point you in the right direction, could you tell me "
             f"{lead['student']}'s current grade and the grade they are aiming for?")
 
@@ -474,7 +580,9 @@ def ai_extract(key, text):
     labels = {f[0]: f[2] for f in active_fields()}
 
     def run():
-        found = agent.extract_profile_fields(st.session_state.profile, labels, key, text)
+        found = normalize_profile_extraction(
+            agent.extract_profile_fields(st.session_state.profile, labels, key, text)
+        )
         return {k: str(v).strip() for k, v in found.items()
                 if k in labels and str(v).strip() and (k == key or k not in st.session_state.profile)}
     return safe_ai(run, lambda: {})
@@ -487,21 +595,18 @@ def assess_full(lead, profile):
         return mock_assess(lead, profile), {}
 
     def run():
-        r = agent.analyse_lead(profile, lead)
-        scores = {
-            "Service fit": str(r.get("service_fit") or "UNKNOWN").upper(),
-            "Need": str(r.get("need") or "UNKNOWN").upper(),
-            "Urgency": str(r.get("urgency") or "UNKNOWN").upper(),
-            "Intent": str(r.get("intent") or "UNKNOWN").upper(),
-        }
-        note = {"summary": r.get("summary", ""), "missing": r.get("missing", []), "next": r.get("next_action", "")}
-        return scores, note
+        normalized = normalize_agent_assessment(agent.analyse_lead(profile, lead))
+        return normalized["scores"], normalized["note"]
 
     basis = {k: lead.get(k) for k in LEAD_KEYS}
     basis["facts"] = lead["other_facts"]
     basis["n"] = len(lead["thread"])
     key = "assess:" + json.dumps(basis, sort_keys=True, default=str)
-    return cached(key, lambda: safe_ai(run, lambda: (mock_assess(lead, profile), {})))
+    result = cached(key, lambda: safe_ai(run, lambda: (mock_assess(lead, profile), {})))
+    if lead.get("last_assessment_key") != key:
+        lead["last_assessment_key"] = key
+        log_lead_activity(lead, "Nova assessed service fit, need, urgency, and intent.")
+    return result
 
 
 def assess(lead, profile):
@@ -510,10 +615,18 @@ def assess(lead, profile):
 
 def draft_outreach(lead, profile):
     if not use_ai():
-        return mock_draft_outreach(lead, profile)
+        draft = mock_draft_outreach(lead, profile)
+        if draft and not lead.get("outreach_generated"):
+            lead["outreach_generated"] = True
+            log_lead_activity(lead, "Nova prepared personalized outreach using demo mode.", "success")
+        return draft
     key = "outreach:" + lead["parent"] + str(lead.get("student")) + str(lead.get("year")) + str(lead.get("subject"))
-    return cached(key, lambda: safe_ai(lambda: agent.draft_outreach(profile, lead),
-                                       lambda: mock_draft_outreach(lead, profile)))
+    draft = cached(key, lambda: safe_ai(lambda: normalize_agent_draft(agent.draft_outreach(profile, lead)),
+                                        lambda: mock_draft_outreach(lead, profile)))
+    if draft and not lead.get("outreach_generated"):
+        lead["outreach_generated"] = True
+        log_lead_activity(lead, "Nova prepared personalized outreach.", "success")
+    return draft
 
 
 def extract_reply_info(lead, text):
@@ -523,6 +636,12 @@ def extract_reply_info(lead, text):
 
     def run():
         r = agent.extract_reply_info(lead, text)
+        if isinstance(r, dict):
+            r = r.get("data") or r.get("result") or r
+            if isinstance(r, dict) and isinstance(r.get("lead_updates"), dict):
+                r = {**r, **r["lead_updates"]}
+        if not isinstance(r, dict):
+            return
         for src, dst in (("student_name", "student"), ("subject", "subject"), ("current_grade", "current_grade"),
                          ("target_grade", "target_grade"), ("motivation", "motivation")):
             if r.get(src):
@@ -557,9 +676,13 @@ def draft_answer(lead, profile):
 
     def run():
         r = agent.draft_reply(profile, lead, message, qualified)
+        if isinstance(r, dict):
+            r = r.get("data") or r.get("result") or r
+        if not isinstance(r, dict):
+            return {"text": normalize_agent_draft(r), "reason": ""}
         if r.get("needs_human"):
             return {"text": None, "reason": r.get("reason", "")}
-        return {"text": r.get("reply"), "reason": ""}
+        return {"text": normalize_agent_draft(r), "reason": str(r.get("reason", ""))}
     key = f"answer:{len(lead['thread'])}:{lead['status']}:{message}"
     out = cached(key, lambda: safe_ai(run, lambda: {"text": mock_draft_answer(lead, profile), "reason": ""}))
     st.session_state["needs_human_reason"] = out["reason"]
@@ -586,6 +709,8 @@ def is_qualified(scores):
 
 
 def ai_status():
+    st.sidebar.markdown("## ✨ Nova")
+    st.sidebar.caption("AI customer growth agent · Demo")
     if use_ai():
         st.sidebar.success(f"AI on ({agent.MODEL})")
     elif agent is None:
@@ -594,6 +719,23 @@ def ai_status():
         st.sidebar.warning("AI off: GROQ_API_KEY not set (using mock answers)")
     if st.session_state.get("ai_error"):
         st.sidebar.error("Last AI error: " + st.session_state["ai_error"])
+    st.sidebar.divider()
+    if st.sidebar.button("↻ Reset demo", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
+
+
+def render_activity(items, empty_message="No activity yet."):
+    if not items:
+        st.caption(empty_message)
+        return
+    for item in reversed(items[-12:]):
+        if isinstance(item, dict):
+            message, kind = item.get("message", ""), item.get("kind", "info")
+        else:  # tolerate earlier/simple agent event formats
+            message, kind = str(item), "info"
+        icon = {"success": "✓", "warning": "!", "info": "•"}.get(kind, "•")
+        st.markdown(f"**{icon}** {message}")
 
 
 def handle_customer_message(lead, profile, text):
@@ -604,26 +746,38 @@ def handle_customer_message(lead, profile, text):
     if lead["thread"] and tuple(lead["thread"][-1]) == ("Customer", text):
         return  # ignore accidental double-submit
     lead["thread"].append(("Customer", text))
+    log_lead_activity(lead, f"Customer replied: {text[:100]}{'…' if len(text) > 100 else ''}")
     lead.pop("outcome", None)
     extract_reply_info(lead, text)
+    log_lead_activity(lead, "Nova extracted details from Sarah's reply and refreshed the lead profile.", "success")
     outcome = lead.pop("outcome", None)
 
     if outcome == "accepted":
         lead["status"] = "CONSULTATION REQUESTED"
+        lead["recommended_next_action"] = "A team member should confirm an exact consultation time based on tutor availability."
+        log_lead_activity(lead, "Customer accepted the consultation. Human scheduling is next.", "success")
     elif outcome == "declined":
         lead["status"] = "CLOSED"
+        lead["recommended_next_action"] = "No further outreach. Leave the door open if the customer returns."
+        log_lead_activity(lead, "Customer declined. Conversation closed respectfully.")
     elif lead["status"] != "CONSULTATION OFFERED":
         scores = assess(lead, profile)
         if scores["Service fit"] == "LOW":
             lead["status"] = "NOT A FIT"
+            lead["recommended_next_action"] = "Do not pursue this lead; the requested service is unsupported."
         elif is_qualified(scores):
             lead["status"] = "QUALIFIED"
+            lead["recommended_next_action"] = "Invite the customer to book a free 15-minute consultation."
         else:
             lead["status"] = "RESPONDED"
+            lead["recommended_next_action"] = "Ask for the most important missing qualification detail."
+        log_lead_activity(lead, f"Lead assessed. Status is now {lead['status']}.", "success" if lead["status"] == "QUALIFIED" else "info")
 
     customer_count = sum(1 for who, _ in lead["thread"] if who != "Nova")
     if customer_count >= MAX_CUSTOMER_MESSAGES and lead["status"] not in TERMINAL:
         lead["status"] = "NEEDS HUMAN"
+        lead["recommended_next_action"] = "Hand the conversation to a team member."
+        log_lead_activity(lead, "Conversation reached the message limit and needs a human.", "warning")
 
 
 def handoff_summary(lead):
@@ -663,30 +817,51 @@ def screen_active():
     lead = st.session_state.lead
     c1, c2, c3 = st.columns(3)
     c1.metric("Leads", 1 if lead else 0)
-    c2.metric("Awaiting your approval", 1 if lead and lead["status"] == "NEW" else 0)
+    c2.metric("Awaiting approval", 1 if lead and lead["status"] == "AWAITING APPROVAL" else 0)
     c3.metric("Qualified", 1 if lead and lead["status"] in ("QUALIFIED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED") else 0)
 
-    st.subheader("Leads")
+    h, add = st.columns([4, 1])
+    h.subheader("Lead pipeline")
     if lead is None:
-        st.info("No leads yet. Add one to see what Nova can do.")
-        if st.button("Add demo lead: Sarah Johnson", type="primary"):
+        if add.button("＋ Add Sarah Johnson", type="primary", use_container_width=True):
             st.session_state.lead = new_lead()
+            log_lead_activity(st.session_state.lead, "Sarah Johnson added as a new demo lead.", "success")
             st.rerun()
+    else:
+        if add.button("↻ Reset Sarah", use_container_width=True):
+            st.session_state.lead = new_lead()
+            st.session_state.outreach_draft = ""
+            st.session_state.editing_outreach = False
+            log_lead_activity(st.session_state.lead, "Sarah's demo lead was reset to the approval step.")
+            st.rerun()
+    if lead is None:
+        with st.container(border=True):
+            st.markdown("### Start the demo journey")
+            st.write("Add the sample lead to see Nova prepare outreach, pause for your approval, and continue the conversation.")
     else:
         with st.container(border=True):
             a, b, c, d = st.columns([3, 2, 2, 1])
             a.markdown(f"**{lead['parent']}**  \n{lead_line(lead)}")
             b.write(lead["subject"])
             c.write(f"{STATUS_ICON.get(lead['status'], '')} {lead['status']}")
-            if d.button("Open"):
+            if d.button("Open", type="primary"):
                 st.session_state.stage = "lead"
                 st.rerun()
 
-    with st.expander("Stored business profile"):
-        st.json(st.session_state.profile)
-    if st.button("Start over"):
-        st.session_state.clear()
-        st.rerun()
+    left, right = st.columns([3, 2], gap="large")
+    with left:
+        with st.expander("Business profile", expanded=False):
+            for section in SECTIONS:
+                section_fields = [f for f in FIELDS if f[1] == section and st.session_state.profile.get(f[0])]
+                if not section_fields:
+                    continue
+                st.markdown(f"**{section}**")
+                for field in section_fields:
+                    st.write(f"**{field[2]}:** {st.session_state.profile[field[0]]}")
+    with right:
+        with st.container(border=True):
+            st.markdown("#### Agent activity log")
+            render_activity(st.session_state.get("activity", []), "Nova's onboarding and lead actions will appear here.")
 
 
 def screen_lead():
@@ -700,10 +875,15 @@ def screen_lead():
         st.rerun()
     if t2.button("Reset this lead"):
         st.session_state.lead = new_lead()
+        st.session_state.outreach_draft = ""
+        st.session_state.editing_outreach = False
+        log_lead_activity(st.session_state.lead, "Sarah's demo lead was reset to the approval step.")
         st.rerun()
     if lead["thread"] and not lead.get("ended") and t3.button("End conversation"):
         lead["status"] = "CLOSED"
         lead["ended"] = True
+        lead["recommended_next_action"] = "No further outreach unless the customer returns."
+        log_lead_activity(lead, "Owner ended the conversation.")
         st.rerun()
     st.markdown('<div class="nova-kicker">Lead workspace · Conversation</div>', unsafe_allow_html=True)
     st.title(f"{lead['parent']}  {STATUS_ICON.get(lead['status'], '')} {lead['status']}")
@@ -734,10 +914,24 @@ def screen_lead():
                 st.markdown("**Still needed:** " + ", ".join(str(m) for m in note["missing"]))
             if note.get("next"):
                 st.markdown("**Next step:** " + str(note["next"]))
+            elif lead.get("recommended_next_action"):
+                st.markdown("**Recommended next action:** " + str(lead["recommended_next_action"]))
+        if lead["status"] in ("QUALIFIED", "CONSULTATION OFFERED", "CONSULTATION REQUESTED"):
+            with st.container(border=True):
+                st.success("✅ Qualified lead")
+                st.markdown("**Recommended next action**")
+                st.write(note.get("next") or lead.get("recommended_next_action") or "Invite Sarah to a free 15-minute consultation.")
+                if lead.get("status") == "CONSULTATION REQUESTED":
+                    st.caption("A team member should confirm the exact time against tutor availability.")
         if lead["status"] == "RESPONDED" and not lead.get("ended"):
             if st.button("Qualify anyway (owner decision)"):
                 lead["status"] = "QUALIFIED"
+                lead["recommended_next_action"] = "Invite the customer to book a free 15-minute consultation."
+                log_lead_activity(lead, "Owner marked this lead as qualified.", "success")
                 st.rerun()
+        with st.container(border=True):
+            st.markdown("**Agent activity log**")
+            render_activity(lead.get("activity", []), "Lead activity will appear here.")
 
     # ---- left: the conversation ----
     with left:
@@ -751,14 +945,50 @@ def screen_lead():
         if lead.get("ended"):
             show_outcome(lead)
 
-        elif status == "NEW":
-            st.markdown("**Outreach draft (needs your approval)**")
-            text = st.text_area("Edit the message if you like", value=draft_outreach(lead, profile), height=260)
-            show_guardrail_check(text, profile)
-            if st.button("Approve and send (simulated)", type="primary"):
-                lead["thread"].append(("Nova", text))
-                lead["status"] = "CONTACTED"
-                st.rerun()
+        elif status == "AWAITING APPROVAL":
+            st.markdown("### Personalized outreach draft")
+            st.warning("Workflow paused · Review this message before Nova can contact Sarah.")
+            if not st.session_state.get("outreach_draft"):
+                st.session_state.outreach_draft = draft_outreach(lead, profile)
+            if st.session_state.get("editing_outreach"):
+                text = st.text_area("Edit outreach", value=st.session_state.outreach_draft, height=240, key="outreach_edit")
+                show_guardrail_check(text, profile)
+                save_col, cancel_col, reject_col = st.columns(3)
+                if save_col.button("Save edits", type="primary", use_container_width=True):
+                    if text.strip():
+                        st.session_state.outreach_draft = text.strip()
+                        st.session_state.editing_outreach = False
+                        log_lead_activity(lead, "Owner edited and saved the outreach draft.")
+                        st.rerun()
+                if cancel_col.button("Cancel edit", use_container_width=True):
+                    st.session_state.editing_outreach = False
+                    st.rerun()
+                if reject_col.button("Reject draft", use_container_width=True):
+                    lead["status"] = "CLOSED"
+                    lead["ended"] = True
+                    lead["recommended_next_action"] = "Outreach was rejected; do not contact Sarah."
+                    log_lead_activity(lead, "Owner rejected the outreach draft. Workflow stopped.", "warning")
+                    st.rerun()
+            else:
+                st.text_area("Draft message", value=st.session_state.outreach_draft, height=240, disabled=True, key="outreach_readonly")
+                show_guardrail_check(st.session_state.outreach_draft, profile)
+                approve_col, edit_col, reject_col = st.columns(3)
+                if approve_col.button("Approve and send", type="primary", use_container_width=True):
+                    lead["thread"].append(("Nova", st.session_state.outreach_draft))
+                    lead["status"] = "CONTACTED"
+                    lead["recommended_next_action"] = "Wait for Sarah's reply, then update lead details and reassess fit."
+                    st.session_state.editing_outreach = False
+                    log_lead_activity(lead, "Owner approved first outreach. Message sent in demo.", "success")
+                    st.rerun()
+                if edit_col.button("Edit draft", use_container_width=True):
+                    st.session_state.editing_outreach = True
+                    st.rerun()
+                if reject_col.button("Reject", use_container_width=True):
+                    lead["status"] = "CLOSED"
+                    lead["ended"] = True
+                    lead["recommended_next_action"] = "Outreach was rejected; do not contact Sarah."
+                    log_lead_activity(lead, "Owner rejected the outreach draft. Workflow stopped.", "warning")
+                    st.rerun()
 
         else:
             last_who = lead["thread"][-1][0] if lead["thread"] else "Nova"
@@ -766,6 +996,16 @@ def screen_lead():
                 if status == "CONSULTATION OFFERED":
                     st.success("Nova has invited the customer to a free consultation. Reply \"yes\" to accept, or decline to end the chat.")
                 st.info("Your turn: reply to Nova as the customer. Explain your situation like a real parent would.")
+                if status == "CONSULTATION OFFERED":
+                    sample = "Yes, we'd like to book a free consultation."
+                    sample_label = "Use Sarah's sample acceptance"
+                else:
+                    sample = ("He's currently getting around a 4 and needs a 6 for sixth form. "
+                              "How much would tutoring be?")
+                    sample_label = "Use Sarah's sample reply"
+                if st.button(sample_label, key=f"sample_reply_{status}"):
+                    handle_customer_message(lead, profile, sample)
+                    st.rerun()
                 msg = st.chat_input("Type as the customer...")
                 if msg:
                     handle_customer_message(lead, profile, msg)
@@ -781,8 +1021,10 @@ def screen_lead():
                 show_guardrail_check(text, profile)
                 if st.button("Send reply (simulated)", type="primary", disabled=not text.strip()):
                     lead["thread"].append(("Nova", text))
+                    log_lead_activity(lead, "Owner approved Nova's customer reply. Message sent in demo.", "success")
                     if lead["status"] == "QUALIFIED":
                         lead["status"] = "CONSULTATION OFFERED"
+                        lead["recommended_next_action"] = "Await Sarah's answer; if accepted, hand scheduling to a team member."
                     elif lead["status"] in TERMINAL:
                         lead["ended"] = True  # that was Nova's final message
                     st.rerun()
