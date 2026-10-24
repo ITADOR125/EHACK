@@ -1,11 +1,13 @@
 {
   "name": "ehack",
-  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc --noEmit",
+    "build:backend": "tsc -p tsconfig.backend.json",
+    "start:backend": "npm run build:backend && node --env-file=.env.local dist/backend/server.js"
   },
   "repository": {
     "type": "git",
