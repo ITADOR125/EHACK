@@ -1,8 +1,8 @@
-"""Read-only Nova localhost client; uses only the Python standard library."""
+"""Nova localhost client, including the narrow qualification-question record gate."""
 import json
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 
 class BackendError(RuntimeError):
@@ -17,8 +17,15 @@ class BackendClient:
         self.timeout = timeout
 
     def _get(self, path):
+        return self._request(path)
+
+    def _request(self, path, proposal=None, headers=None):
+        request = self.base_url + path
+        if proposal is not None:
+            request = Request(request, data=json.dumps(proposal).encode("utf-8"),
+                              headers={"Content-Type": "application/json", **(headers or {})}, method="POST")
         try:
-            with urlopen(self.base_url + path, timeout=self.timeout) as response:
+            with urlopen(request, timeout=self.timeout) as response:
                 return json.load(response)
         except HTTPError as error:
             raise BackendError(
@@ -38,3 +45,15 @@ class BackendClient:
 
     def get_conversation_history(self, lead_id):
         return self._get("/leads/" + quote(lead_id, safe="") + "/messages")
+
+    def evaluate_proposal(self, proposal):
+        """Return backend safety preflight; never execute the proposed action."""
+        return self._request("/proposals/evaluate", proposal)
+
+    def execute_proposal(self, proposal, execution_key):
+        """Record a question only if backend safety allows it. Reuse the key on retries.
+
+        No customer message is sent and no proposed lead updates are applied.
+        Non-act decisions raise BackendError with HTTP status 409.
+        """
+        return self._request("/proposals/execute", proposal, {"Idempotency-Key": execution_key})

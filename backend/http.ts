@@ -1,6 +1,9 @@
 import { createServer } from "node:http";
-import type { ServerResponse } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import type * as agentTools from "../lib/agentTools.js";
+import { evaluateProposal, parseProposal, ProposalInputError } from "./evaluateProposal.js";
+import { executeProposal } from "./executeProposal.js";
+import type { ExecutionTools } from "./executeProposal.js";
 
 type ReadTools = Pick<typeof agentTools, "getBusiness" | "getLead" | "getConversationHistory">;
 
@@ -9,14 +12,30 @@ function json(response: ServerResponse, status: number, body: unknown) {
   response.end(JSON.stringify(body));
 }
 
-// Only exposes reads. Agent reasoning and workflow execution belong elsewhere.
-export function createBackendServer(tools: ReadTools) {
-  return createServer(async (request, response) => {
-    if (request.method !== "GET") {
-      response.setHeader("Allow", "GET");
-      json(response, 405, { error: "Only GET requests are supported" });
-      return;
+async function readProposal(request: IncomingMessage) {
+  if (request.headers["content-type"]?.split(";")[0]?.trim() !== "application/json") {
+    throw new ProposalInputError("Content-Type must be application/json", 415);
+  }
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.length;
+    if (size > 65536) {
+      request.resume();
+      throw new ProposalInputError("Proposal exceeds 64 KiB", 413);
     }
+    chunks.push(buffer);
+  }
+  let value: unknown;
+  try { value = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
+  catch { throw new ProposalInputError("Invalid JSON"); }
+  return parseProposal(value);
+}
+
+// Reads and safety evaluation only; no write tools are available to this server.
+export function createBackendServer(tools: ReadTools, executionTools?: Pick<ExecutionTools, "logAction">) {
+  return createServer(async (request, response) => {
     let parts: string[];
     try {
       const pathname = new URL(request.url ?? "/", "http://localhost").pathname;
@@ -25,7 +44,39 @@ export function createBackendServer(tools: ReadTools) {
       json(response, 400, { error: "Invalid request URL" });
       return;
     }
+    const evaluationRoute = parts.length === 2 && parts[0] === "proposals" && parts[1] === "evaluate";
+    const executionRoute = parts.length === 2 && parts[0] === "proposals" && parts[1] === "execute";
+    const allowedMethod = evaluationRoute || executionRoute ? "POST" : "GET";
+    if (request.method !== allowedMethod) {
+      response.setHeader("Allow", allowedMethod);
+      json(response, 405, { error: `Only ${allowedMethod} requests are supported here` });
+      return;
+    }
     try {
+      if (executionRoute) {
+        if (!executionTools) throw new ProposalInputError("Execution tools are not configured", 503);
+        const key = request.headers["idempotency-key"];
+        if (typeof key !== "string") throw new ProposalInputError("Idempotency-Key is required");
+        const proposal = await readProposal(request);
+        const result = await executeProposal(proposal, key, { ...tools, ...executionTools });
+        json(response, result.status, result.body);
+        return;
+      }
+      if (evaluationRoute) {
+        const proposal = await readProposal(request);
+        const business = await tools.getBusiness(proposal.businessId);
+        const lead = await tools.getLead(proposal.leadId);
+        if (!business || !lead) {
+          json(response, 404, { error: "Business or lead not found" });
+          return;
+        }
+        if (lead.businessId !== business.id) {
+          throw new ProposalInputError("Lead does not belong to the supplied business");
+        }
+        const history = await tools.getConversationHistory(lead.id);
+        json(response, 200, evaluateProposal(proposal, business, lead, history));
+        return;
+      }
       if (parts.length === 1 && parts[0] === "health") {
         json(response, 200, { status: "ok" });
         return;
@@ -47,7 +98,11 @@ export function createBackendServer(tools: ReadTools) {
       } else {
         json(response, 404, { error: "Endpoint not found" });
       }
-    } catch {
+    } catch (error) {
+      if (error instanceof ProposalInputError) {
+        json(response, error.status, { error: error.message });
+        return;
+      }
       // Do not expose connection strings or database internals over HTTP.
       json(response, 503, { error: "Backend data is temporarily unavailable" });
     }

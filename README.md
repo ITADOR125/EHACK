@@ -49,6 +49,22 @@ node --test dist/test-backend.js dist/test-safety.js
 These fixture tests do not require MongoDB. `test_backend_bridge.py` is the separate
 live Python → HTTP → agentTools → MongoDB verification.
 
+The execution gate adds `POST /proposals/execute` with the proposal JSON and an
+`Idempotency-Key` header (1–128 letters, digits, underscores, or hyphens). Python
+can call `client.execute_proposal(proposal, execution_key)` and reuse the same key
+on retries. The backend reloads business, lead, and message data and reruns safety;
+client-supplied safety decisions never authorize execution.
+
+Only an `act` decision for `ask_customer` can record a qualification question in
+`agent_actions` using `logAction`. This records a question; it does not deliver it,
+add it to conversation history, or apply proposed lead changes. Non-act decisions
+return HTTP 409. Replays return `already_executed`; reusing a key for another
+question returns 409. MongoDB's unique `_id` stores the action and replay receipt
+atomically, including across concurrent requests and backend restarts.
+
+Include `dist/test-proposal-safety.js` and `dist/test-execution-gate.js` in the
+`node --test` command above to run the evaluation and execution-gate tests.
+
 
 
 ##Edit by Fatima

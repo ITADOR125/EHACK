@@ -6,6 +6,7 @@ import {
 } from "./lib/agentTools.js";
 import { novaTutors, sarahJohnson } from "./lib/demoData.js";
 import type { AgentAction, Business, Lead, Message } from "./lib/models.js";
+import { executeProposal } from "./backend/executeProposal.js";
 
 async function main() {
   const client = await clientPromise;
@@ -54,7 +55,35 @@ async function main() {
       await db.collection<AgentAction>("agent_actions").findOne({ id: action.id }, { projection: { _id: 0 } }),
       action,
     );
+    const onceAction = { ...action, id: `${prefix}-once`, action: "record_qualification_question" };
+    const attempts = await Promise.all(Array.from({ length: 6 }, () =>
+      logAction(onceAction, { idempotencyKey: `${prefix}-receipt` })));
+    assert.equal(attempts.filter(result => result.created).length, 1);
+    assert.equal(await db.collection("agent_actions").countDocuments({ id: onceAction.id }), 1);
+    const replay = await logAction({ ...onceAction, reason: "changed question" }, { idempotencyKey: `${prefix}-receipt` });
+    assert.equal(replay.created, false);
+    assert.equal(replay.action.reason, onceAction.reason);
+    // Exercise the gate itself with authoritative reads and the real MongoDB tool.
+    const proposal = {
+      businessId: business.id, leadId: lead.id, action: "ask_customer", reason: "Ask tutoring preference",
+      proposedMessage: { leadId: lead.id, sender: "nova", content: "Would you prefer online or in-person tutoring?" },
+      proposedLeadUpdates: {}, missingInformation: [], brainRequiresHumanApproval: false,
+      executionStatus: "not_executed", safetyDecision: "act", // ignored by the backend
+    };
+    const tools = { getBusiness, getLead, getConversationHistory, logAction };
+    // Existing fixture messages contain no discount request.
+    const before = await db.collection("agent_actions").countDocuments({ leadId: lead.id });
+    const executions = await Promise.all(Array.from({ length: 4 }, () => executeProposal(proposal, "mongodb-turn", tools)));
+    assert.equal(executions.filter(result => result.body.executionStatus === "executed").length, 1);
+    assert.equal(await db.collection("agent_actions").countDocuments({ leadId: lead.id }), before + 1);
+    assert.equal((await getLead(lead.id))?.status, "contacted");
+    await updateLead(lead.id, { status: "closed" });
+    const staleApproval = await executeProposal(proposal, "after-close", tools);
+    assert.equal(staleApproval.body.safetyDecision, "escalate");
+    assert.equal(staleApproval.body.executionStatus, "not_executed");
+    assert.equal(await db.collection("agent_actions").countDocuments({ leadId: lead.id }), before + 1);
     console.log("All six agent tools passed MongoDB integration checks.");
+    console.log("MongoDB execution gate passed: concurrent replay protection and authoritative closed-lead rejection.");
   } finally {
     try {
       await db.collection("messages").deleteMany({ leadId: { $in: [lead.id, missingId] } });

@@ -1,5 +1,5 @@
 import clientPromise from "../lib/mongodb.js";
-import { getBusiness, getLead, getConversationHistory } from "../lib/agentTools.js";
+import { getBusiness, getLead, getConversationHistory, logAction } from "../lib/agentTools.js";
 import { createBackendServer } from "./http.js";
 
 async function main() {
@@ -9,7 +9,7 @@ async function main() {
     await client.close();
     throw new Error("NOVA_BACKEND_PORT must be an integer between 1 and 65535");
   }
-  const server = createBackendServer({ getBusiness, getLead, getConversationHistory });
+  const server = createBackendServer({ getBusiness, getLead, getConversationHistory }, { logAction });
   server.on("error", () => {
     console.error("Backend could not listen; check whether its port is already in use.");
     void client.close().finally(() => { process.exitCode = 1; });
