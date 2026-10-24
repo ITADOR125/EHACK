@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "name": "Nova Tutors",
+    "description": "Small independent tutoring company offering personalised one-to-one GCSE tutoring.",
+    "location": "London, plus online across the UK",
+    "services": "GCSE Maths, Biology, Chemistry, Physics and Combined Science",
+    "unsupported": "English, History, Geography, Languages, Computer Science, A-Level, university, primary school, SATs",
+    "pricing": "£30 per hour (60 min sessions). Free 15-minute initial consultation.",
+    "ideal_customer": "Parents or guardians of Year 10 and 11 students who want extra GCSE Maths or Science support.",
+    "qualification": "Student year, subject, current grade, target grade, areas of weakness, exam board, online or in-person, location, availability.",
+    "goal": "Book a free 15-minute consultation.",
+    "tone": "Friendly, reassuring and professional.",
+    "guardrails": "Never guarantee grades. Never invent prices, availability or services. Never offer unauthorised discounts. Never confirm a booking that has not happened.",
+    "approval": "Human approval for first outreach, discounts, complaints, policy exceptions and anything outside known information.",
+    "faqs": "Sessions are 60 minutes. Online tutoring is available across the UK.",
+    "availability": "Mon-Fri 4-8pm, Sat 10am-5pm, Sun 10am-4pm. Exact tutor availability varies."
+  },
+  "onboarding": {
+    "mode": 3,
+    "completed": true,
+    "confirmedByOwner": true
+  }
+}
